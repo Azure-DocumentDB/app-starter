@@ -1,6 +1,39 @@
 # Verification record — 2026-10-13
 
-## Live cloud follow-up — verification passed, release disposition separate
+## Current status — live and independent source release gates passed
+
+The live application gates and independent final source review passed on
+2026-10-13. Publication uses the existing PR with normal exact-head CI and merge
+checks; GitHub, not this pre-merge document, records the final merge/visibility.
+**This is source publication, not a durably hosted public demo or a hosting SLA.**
+The test deployment was time-bounded and disposable. Coordinated cloud cleanup
+remains operator-owned and is not claimed complete by this record.
+
+Independent final review of `d9ea13c41ca099a50511888efbca2bca133beb61` through
+`46e618df61021a4c598c85494ccf684195ef2afd` found no new blocking runtime defect:
+
+- Diagnostic output selects fixed stage/event/class values and numeric or
+  allowlisted string error codes; it omits exception messages, causes, headers,
+  tokens and arbitrary fields. Numeric error codes are not a finite allowlist.
+- The Node 24.20 minimum matches the actually proven App Service runtime; package
+  and lockfile agree. The favicon 204 route remains behind operator/host/origin
+  checks and retains the standard security headers.
+- Fresh `npm ci --ignore-scripts`, TypeScript build/typecheck, **18 tests**,
+  `npm audit --audit-level=low` (**0 vulnerabilities**) and production bundle
+  passed with Node 24.21.0 / npm 11.19.0. All 17 compiled/UI files matched the
+  fresh ZIP; no credential/test/Git paths, native modules or dev dependencies
+  were present. A rebuilt ZIP may have a different hash from the deployed ZIP.
+- Gitleaks 8.30.1 found no secrets in all eight reachable commits or the exported
+  tracked source tree at the reviewed head. This is a detector result, not a
+  guarantee that all possible sensitive content can be recognized.
+- Desktop, 390-pixel mobile, conflict and database-unavailable screenshots were
+  independently inspected: readable layout, no observed clipping, honest errors.
+  Browser and cloud behavior below are the live operator's retained evidence;
+  this final source reviewer did not repeat cloud/browser interactions.
+- The changes after the live-tested source are README/TESTED documentation only.
+  The working tree was clean before these final documentation clarifications.
+
+## Live cloud follow-up — 2026-10-13
 
 The former App Service allocation and browser blockers below were resolved by
 an owned **West US 3 Linux B1** deployment and a **West US 2 managed Azure
@@ -46,21 +79,23 @@ below as a dated historical record, not the current gate status.
 - Initial provisioning/identity/firewall propagation and app restarts caused
   temporary 503s; these are preserved, not hidden. Readiness recovery preceded
   acceptance. The original source succeeded without an auth/firewall relaxation.
-  A later safe diagnostic improvement logs only allowlisted stage/class/code,
-  never exception messages, tokens, headers or full environment.
+  A later safe diagnostic improvement logs fixed stages, allowlisted classes,
+  numeric or allowlisted string codes; never exception messages, tokens, headers
+  or full environment.
 - This is still an operator-network demo, **not production user authentication**,
   database least-privilege proof or a full accessibility audit. No paid model
   requests were made in this follow-up.
 
 Evidence is retained outside the source repository under the operator's
 `app-starter-live-2026-10-13` directory: final HTTP/cloud audit, what-if and
-package records, browser screenshots, off-IP proof, and handoff. At this document
-update, parent review/publication and coordinated disposable-resource teardown
-are separate pending operator actions; this is **not a cleanup/merge claim**.
+package records, browser screenshots, off-IP proof, and handoff. Independent
+source review is now complete. The existing PR supplies exact-head CI and merge
+provenance; coordinated disposable-resource teardown remains a separate operator
+action. This document is **not a cleanup/merge claim**.
 
 ## Historical record — 2026-10-12 (superseded gates)
 
-**Release status: HOLD. Private review only; not an all-gates-pass release.**
+**Historical release status on 2026-10-12: HOLD (superseded above).**
 Local HTTP and real managed Azure DocumentDB checks passed. **Real browser:
 NOT VERIFIED. App Service / cloud managed identity / off-IP rejection: BLOCKED.**
 No rendered UI, cloud deployment, Easy Auth or production authorization is claimed.
@@ -138,7 +173,7 @@ Saved Bicep compilation produced ARM output, with **BCP081 warnings** for the
 2026-06-01 cluster/user resource types whose type schemas were unavailable.
 Compilation is **not** Azure what-if, cloud schema validation or deployment proof.
 
-## Explicitly incomplete release gates
+## Historical incomplete release gates — resolved by the follow-up above
 
 1. **Browser — NOT VERIFIED.** The supported browser navigation policy blocked
    access to the local application. Approval for `127.0.0.1` was requested; no
@@ -165,5 +200,6 @@ Sanitized operator records are retained outside this repository under the
 `starter-seed.json`, `starter-http.json`, `hosting-blocker.json`, saved offline
 and package logs, and the independent app/follow-up review reports. This document
 summarizes those records; no credentials, environment files or tokens are
-included. Do not interpret private review/CI success as authorization to publish
-while the gates above are incomplete.
+included. At the time of this historical record, private review/CI success did
+not authorize publication while its live gates were incomplete. The dated
+2026-10-13 follow-up above supplies the subsequent live-gate results.

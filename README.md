@@ -12,8 +12,12 @@ system-assigned managed-identity CRUD, restart persistence and negative CSRF.
 The real cloud UI was exercised in Chromium at desktop/mobile widths, with
 screenshots, real conflict handling and a clean final console. Actual requests
 from a distinct nonallowlisted Azure source received **403 for app and SCM**.
-This does not imply production end-user authentication, a public running demo,
-resource-cleanup completion or automatic publication approval.
+Independent source review, a fresh locked build/test/bundle, dependency audit
+(0 vulnerabilities) and source/history secret scans also passed. This repository
+is a source sample, **not a durably hosted public demo**: the test deployment was
+time-bounded and disposable. No production end-user authentication, hosting SLA
+or resource-cleanup completion is claimed. See the dated verification record;
+GitHub records the actual merge and repository visibility separately.
 
 ## What you get
 
