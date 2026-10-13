@@ -4,6 +4,15 @@ A small, complete task workspace: create, edit, delete, search, filter and page 
 
 > **Security scope:** this is an **operator-trusted-network demo**, not a production multi-user service. Local access is loopback-only. Azure access is restricted to one explicit operator IPv4 address, including SCM. Sessions and CSRF prevent cross-site writes; **they do not authenticate a human**. Everyone behind the permitted public/NAT IP is trusted. Do not publish unrestricted access or store real/sensitive data. The database identity currently receives a broad cluster role; see [Security](#security).
 
+## Verification status — private review, not release-ready
+
+[Exact tested revision, results and outstanding gates](TESTED.md): **17 offline
+tests passed**, plus actual managed Azure DocumentDB integration and local HTTP
+restart/seed-preservation checks using **Azure CLI OIDC**. **Real browser: NOT
+VERIFIED** (navigation policy blocked). **App Service deployment, cloud managed
+identity and distinct off-IP denial: BLOCKED** by allocation quota 0. No rendered
+UI or cloud deployment is claimed; publication remains on hold.
+
 ## What you get
 
 - Responsive task cards, keyboard-accessible dialogs, search, status filters, deterministic pagination, optimistic edit/delete conflicts, and honest loading/empty/error states.
