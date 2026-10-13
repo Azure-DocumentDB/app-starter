@@ -35,6 +35,7 @@ export function createApp(config: Config, store: Store) {
       const url = new URL(req.url ?? '/', config.origin); const method = req.method ?? 'GET';
       if (url.pathname === '/health/live' && method === 'GET') return reply(res, 200, { status: 'alive' });
       authorize(req);
+      if (url.pathname === '/favicon.ico' && method === 'GET') { res.writeHead(204); res.end(); return; }
       if (url.pathname === '/health/ready' && method === 'GET') { await store.ready(); return reply(res, 200, { status: 'ready' }); }
       if (url.pathname === '/api/session' && method === 'GET') {
         const now = Date.now(); for (const [key, session] of sessions) if (session.expires <= now) sessions.delete(key);
