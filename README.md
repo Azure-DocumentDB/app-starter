@@ -24,7 +24,7 @@ UI or cloud deployment is claimed; publication remains on hold.
 
 ## Local quickstart — against a real managed database
 
-Prerequisites: Node 24.21.0, npm, Azure CLI; an existing **managed Azure DocumentDB** cluster (not the DocumentDB open-source project, Atlas or Cosmos DB RU), Entra authentication enabled, your signed-in identity registered as a cluster data-plane user, and a cluster firewall rule allowing only your current public IPv4. Ask the cluster administrator to complete those steps; Azure subscription Contributor alone does not grant database access.
+Prerequisites: Node 24.20.0 or newer within Node 24 (local/CI pin: 24.21.0), npm, Azure CLI; an existing **managed Azure DocumentDB** cluster (not the DocumentDB open-source project, Atlas or Cosmos DB RU), Entra authentication enabled, your signed-in identity registered as a cluster data-plane user, and a cluster firewall rule allowing only your current public IPv4. Ask the cluster administrator to complete those steps; Azure subscription Contributor alone does not grant database access.
 
 ```bash
 npm ci --ignore-scripts
@@ -73,7 +73,7 @@ npm run bundle
 # startup command inside ZIP: node dist/server.js
 ```
 
-The ZIP contains compiled JS, the real UI, production-only `node_modules`, package manifests and license. It excludes `.env`, test fixtures, evidence and credentials. No Oryx/npm install is required at startup. `zip` must be installed. There are no native production modules, so packaging on macOS is portable to Linux Node 24. App Service chooses the currently supported Node 24 LTS patch; local/CI use 24.21.0.
+The ZIP contains compiled JS, the real UI, production-only `node_modules`, package manifests and license. It excludes `.env`, test fixtures, evidence and credentials. No Oryx/npm install is required at startup. `zip` must be installed. There are no native production modules, so packaging on macOS is portable to Linux Node 24. App Service chooses the currently supported Node 24 LTS patch; the live managed-identity test used 24.20.0, which is the supported minimum. Local/CI use 24.21.0. Kudu's runtime is separate and does not identify the web app runtime.
 
 Default plan is Linux **B1**, if the subscription and region support it. You may provide an existing Linux plan in the same region or explicitly choose `S1`/`P0V4` after quota/cost approval. A listed SKU does **not** prove allocation quota. Do not repeatedly provision plans to guess around quota failures.
 
