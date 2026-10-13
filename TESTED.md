@@ -1,4 +1,64 @@
-# Verification record — 2026-10-12
+# Verification record — 2026-10-13
+
+## Live cloud follow-up — verification passed, release disposition separate
+
+The former App Service allocation and browser blockers below were resolved by
+an owned **West US 3 Linux B1** deployment and a **West US 2 managed Azure
+DocumentDB M30**, one shard, 128 GiB, no HA. The previous report is preserved
+below as a dated historical record, not the current gate status.
+
+- Final live-tested application source: `48494f4fd96d7b43c25dc3bbb1153fbd2713c674`.
+  Later verification-document edits do not change that tested source.
+- Final deployed ZIP SHA-256:
+  `044fce9d79b7ed22e86f98a8324881c1f648b0b7ccba57f9410a33a32903b522`.
+  All 17 compiled/UI files matched local source output. Forbidden credential,
+  test and Git paths were absent. Original package and evidence were preserved.
+- **18 offline tests passed**, no skips/failures; TypeScript build and whitespace
+  checks passed. This run did not repeat the previous dependency advisory audit.
+- Bicep compiled; Azure what-if was inspected before new App Service resources
+  and the separate cluster-user deployment. Ownership/deletion tags were added
+  to the compiled deployment copy. No existing resources were adopted.
+- Actual App Service runtime **Node 24.20.0**; local/CI pin 24.21.0. The package
+  minimum now reflects the tested 24.20.0 runtime. Kudu uses a separate runtime.
+- **23 final HTTP assertions passed** on the actual HTTPS app: liveness/readiness,
+  create/search/edit/delete, stale revision 409, filtering/pagination, no-session
+  401, missing-CSRF and wrong-Origin 403, favicon 204. An actual App Service
+  restart invalidated its in-memory session; after readiness recovered, the
+  edited database row and revision persisted, then the proof row was deleted.
+- The deployed app used **system-assigned managed identity**, not Azure CLI.
+  Settings selected only `ManagedIdentityCredential`; no database password,
+  client secret/client ID or pasted user/CLI token was configured. The app's
+  principal was registered as the acknowledged root/admin user of this disposable
+  cluster. No Azure control-plane role was assigned to it.
+- Main app and SCM allowed only the operator IPv4 /32, explicit default deny;
+  FTP/SCM basic publishing authentication disabled. Database firewall allowed
+  only 13 actual outbound IPv4 addresses plus the local operator, no broad rule.
+- **Distinct off-IP ingress rejection passed for app and SCM**: an actual HTTPS
+  probe from the owned remote SCM container had a different public source IP and
+  received 403 at both endpoints. Forwarded headers were not spoofed.
+- **Real supported Chromium browser verified the cloud UI**: create → search →
+  edit, persistence on refresh, visible 409 after a real concurrent update,
+  delete confirmation → empty search, next-page ninth row, correct status filter,
+  error/retry recovery, editor title focus and Escape dismissal. Desktop and
+  390-pixel mobile screenshots were inspected; no horizontal overflow. Final
+  fresh browser tab at the exact source showed nine persisted fixture rows,
+  empty error feedback and **0 console errors / 0 uncaught script errors**.
+- Initial provisioning/identity/firewall propagation and app restarts caused
+  temporary 503s; these are preserved, not hidden. Readiness recovery preceded
+  acceptance. The original source succeeded without an auth/firewall relaxation.
+  A later safe diagnostic improvement logs only allowlisted stage/class/code,
+  never exception messages, tokens, headers or full environment.
+- This is still an operator-network demo, **not production user authentication**,
+  database least-privilege proof or a full accessibility audit. No paid model
+  requests were made in this follow-up.
+
+Evidence is retained outside the source repository under the operator's
+`app-starter-live-2026-10-13` directory: final HTTP/cloud audit, what-if and
+package records, browser screenshots, off-IP proof, and handoff. At this document
+update, parent review/publication and coordinated disposable-resource teardown
+are separate pending operator actions; this is **not a cleanup/merge claim**.
+
+## Historical record — 2026-10-12 (superseded gates)
 
 **Release status: HOLD. Private review only; not an all-gates-pass release.**
 Local HTTP and real managed Azure DocumentDB checks passed. **Real browser:

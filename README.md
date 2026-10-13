@@ -4,14 +4,16 @@ A small, complete task workspace: create, edit, delete, search, filter and page 
 
 > **Security scope:** this is an **operator-trusted-network demo**, not a production multi-user service. Local access is loopback-only. Azure access is restricted to one explicit operator IPv4 address, including SCM. Sessions and CSRF prevent cross-site writes; **they do not authenticate a human**. Everyone behind the permitted public/NAT IP is trusted. Do not publish unrestricted access or store real/sensitive data. The database identity currently receives a broad cluster role; see [Security](#security).
 
-## Verification status — private review, not release-ready
+## Verification status — live cloud and browser verified
 
-[Exact tested revision, results and outstanding gates](TESTED.md): **17 offline
-tests passed**, plus actual managed Azure DocumentDB integration and local HTTP
-restart/seed-preservation checks using **Azure CLI OIDC**. **Real browser: NOT
-VERIFIED** (navigation policy blocked). **App Service deployment, cloud managed
-identity and distinct off-IP denial: BLOCKED** by allocation quota 0. No rendered
-UI or cloud deployment is claimed; publication remains on hold.
+[Exact tested revision, evidence and limitations](TESTED.md): **18 offline tests**
+and **23 final deployed HTTP assertions passed**, including actual App Service
+system-assigned managed-identity CRUD, restart persistence and negative CSRF.
+The real cloud UI was exercised in Chromium at desktop/mobile widths, with
+screenshots, real conflict handling and a clean final console. Actual requests
+from a distinct nonallowlisted Azure source received **403 for app and SCM**.
+This does not imply production end-user authentication, a public running demo,
+resource-cleanup completion or automatic publication approval.
 
 ## What you get
 
