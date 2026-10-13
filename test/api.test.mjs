@@ -8,3 +8,18 @@ test('unauthorized HTTP requests denied without an app secret',async t=>{const f
 test('cloud operator boundary denies untrusted caller even with spoofed first forwarded IP',async t=>{const f=await fixture(t,true);for(const headers of [{},{'x-forwarded-for':'198.51.100.10','x-forwarded-proto':'https'},{'x-forwarded-for':'203.0.113.4, 198.51.100.10','x-forwarded-proto':'https'}])assert.equal((await f.request('/api/session',{headers})).status,403);});
 test('CRUD, deterministic paging, filtering, validation and optimistic conflict',async t=>{const f=await fixture(t);const headers=await session(f);const write=(path,method,b)=>f.request(path,{method,headers,body:JSON.stringify(b)});let r=await write('/api/tasks','POST',task);assert.equal(r.status,201);let created=await r.json();assert.equal(created.revision,1);for(let i=0;i<4;i++)await write('/api/tasks','POST',{...task,title:`Other ${i}`});r=await f.request('/api/tasks?page=1&limit=2',{headers});const first=await r.json();const again=await(await f.request('/api/tasks?page=1&limit=2',{headers})).json();assert.deepEqual(first.items,again.items);assert.equal(first.total,5);assert.equal(first.items.length,2);const second=await(await f.request('/api/tasks?page=2&limit=2',{headers})).json();assert.equal(second.items.some(x=>first.items.some(y=>x.id===y.id)),false);assert.equal((await(await f.request('/api/tasks?q=Test&status=planned',{headers})).json()).total,1);for(const q of ['page=0','limit=999','page=no','status=invalid'])assert.equal((await f.request('/api/tasks?'+q,{headers})).status,400);for(const b of [null,[],{}, {...task,title:''},{...task,title:{$gt:''}},{...task,extra:true}])assert.equal((await write('/api/tasks','POST',b)).status,400);assert.equal((await f.request('/api/tasks',{method:'POST',headers,body:'{broken'})).status,400);assert.equal((await write('/api/tasks','POST',{...task,notes:'x'.repeat(9000)})).status,413);r=await write(`/api/tasks/${created.id}`,'PUT',{...task,status:'done',revision:1});assert.equal(r.status,200);created=await r.json();assert.equal(created.revision,2);assert.equal((await write(`/api/tasks/${created.id}`,'PUT',{...task,revision:1})).status,409);assert.equal((await write(`/api/tasks/${created.id}`,'DELETE',{revision:1})).status,409);assert.equal((await write(`/api/tasks/${created.id}`,'DELETE',{revision:2})).status,200);});
 test('static assets carry restrictive CSP and no credential material',async t=>{const f=await fixture(t);for(const p of ['/','/app.js','/styles.css']){const r=await f.request(p);assert.equal(r.status,200);assert.match(r.headers.get('content-security-policy'),/script-src 'self'/);assert.doesNotMatch(await r.text(),/IDENTITY_HEADER|accessToken|DOCUMENTDB_HOST/);}assert.equal((await f.request('/.env')).status,404);});
+test('POST and PUT reject array/object/null enums with 400 and no store mutation',async t=>{
+  const f=await fixture(t);const headers=await session(f);
+  const write=(path,method,b)=>f.request(path,{method,headers,body:JSON.stringify(b)});
+  const created=await(await write('/api/tasks','POST',task)).json();
+  const before=structuredClone([...f.store.tasks.entries()]);
+  for(const key of ['status','priority'])for(const value of [[task[key]],{}, {toString:null},null,true,1]){
+    for(const method of ['POST','PUT']){
+      const payload={...task,[key]:value};if(method==='PUT')payload.revision=created.revision;
+      const result=await write(method==='POST'?'/api/tasks':`/api/tasks/${created.id}`,method,payload);
+      assert.equal(result.status,400,`${method} ${key}=${JSON.stringify(value)}`);
+      assert.deepEqual(await result.json(),{error:`Invalid ${key}.`});
+      assert.deepEqual([...f.store.tasks.entries()],before,'Rejected body must not mutate the store');
+    }
+  }
+});

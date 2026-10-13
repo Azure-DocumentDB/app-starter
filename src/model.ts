@@ -10,8 +10,8 @@ export function fields(input: unknown): Pick<Task, 'title' | 'notes' | 'status' 
   if (Object.keys(b).some(k => !['title', 'notes', 'status', 'priority', 'revision'].includes(k))) throw new HttpError(400, 'Unknown task field.');
   if (typeof b.title !== 'string' || !b.title.trim() || b.title.trim().length > 120) throw new HttpError(400, 'Title must contain 1–120 characters.');
   if (typeof b.notes !== 'string' || b.notes.length > 2000) throw new HttpError(400, 'Notes must contain at most 2000 characters.');
-  if (!['planned', 'in-progress', 'done'].includes(String(b.status))) throw new HttpError(400, 'Invalid status.');
-  if (!['low', 'medium', 'high'].includes(String(b.priority))) throw new HttpError(400, 'Invalid priority.');
+  if (typeof b.status !== 'string' || !['planned', 'in-progress', 'done'].includes(b.status)) throw new HttpError(400, 'Invalid status.');
+  if (typeof b.priority !== 'string' || !['low', 'medium', 'high'].includes(b.priority)) throw new HttpError(400, 'Invalid priority.');
   return { title: b.title.trim(), notes: b.notes, status: b.status as Status, priority: b.priority as Priority };
 }
 export function revision(input: unknown): number { if (!Number.isSafeInteger(input) || Number(input) < 1) throw new HttpError(400, 'A positive integer revision is required.'); return Number(input); }
