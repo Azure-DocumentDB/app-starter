@@ -1,10 +1,11 @@
 import { AzureCliCredential, DefaultAzureCredential } from '@azure/identity';
 import { MongoClient, MongoServerError, type Filter } from 'mongodb';
 import { assertOwnedDatabase, TOKEN_SCOPE, type Config } from './config.js';
+import { databaseDiagnostic } from './diagnostics.js';
 import { HttpError, type Store, type Task, type Query, type fields } from './model.js';
 export function tokenCallback(credential: { getToken(scope: string, options?: object): Promise<{ token: string; expiresOnTimestamp: number } | null> }) {
   return async (params: { timeoutContext: AbortSignal }) => {
-    const token = await credential.getToken(TOKEN_SCOPE, { abortSignal: params.timeoutContext });
+    const token = await credential.getToken(TOKEN_SCOPE, { abortSignal: params.timeoutContext }).catch(error => { databaseDiagnostic('token', error); throw error; });
     if (!token || token.expiresOnTimestamp <= Date.now() + 1000) throw new Error('No usable Entra access token');
     return { accessToken: token.token, expiresInSeconds: Math.floor((token.expiresOnTimestamp - Date.now()) / 1000) };
   };
@@ -26,9 +27,9 @@ export class MongoStore implements Store {
     this.client = new MongoClient(`mongodb+srv://${config.host}/`, mongoOptions(config));
     this.db = this.client.db(config.database); this.tasks = this.db.collection<Task>('tasks');
   }
-  async ready() { await this.db.command({ ping: 1 }, { timeoutMS: 8000 }); await this.initialize(); }
+  async ready() { await this.db.command({ ping: 1 }, { timeoutMS: 8000 }).catch(error => { databaseDiagnostic('ping', error); throw error; }); await this.initialize(); }
   private async initialize() {
-    this.initialization ??= this.preflight().catch(error => { this.initialization = undefined; throw error; });
+    this.initialization ??= this.preflight().catch(error => { this.initialization = undefined; databaseDiagnostic('initialize', error); throw error; });
     await this.initialization;
   }
   private async preflight() {
